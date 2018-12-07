@@ -10,24 +10,24 @@
                 <v-spacer></v-spacer>
                
               </v-toolbar>
-              <v-card-text>
+              <!--<v-card-text>
                 <v-form>
                   <v-text-field prepend-icon="person" name="username" label="username" type="text" v-model="user.username"></v-text-field>
                   <v-text-field id="password" prepend-icon="lock" name="password" label="Password" type="password" v-model="user.password"></v-text-field>
                 </v-form>
-              </v-card-text>
+              </v-card-text>-->
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="#e74c3c" dark @click="login()">
-                    <v-icon>fingerprint</v-icon>
+                <v-btn color="#e74c3c" dark class="w-100" @click="googleLogin()">
+                    Google ile giris yap
                 </v-btn>
                 <v-spacer></v-spacer>
               </v-card-actions>
-               <v-card-actions>
+               <!--<v-card-actions>
                 <v-btn color="#e74c3c" dark class='w-100' to="Register">
                     Register
                 </v-btn>
-              </v-card-actions>
+              </v-card-actions>-->
             </v-card>
           </v-flex>
         </v-layout>
@@ -36,25 +36,18 @@
 </template>
 
 <script>
-export default {
-    data: () =>({
-        user:{
-            username:'',
-            password:''
+import { mapActions, mapState } from 'vuex';
 
-        }
+export default {
+    computed:{
+        ...mapState('auth',['isError'])
+
+    },
+    data: () =>({
+     
     }),
     methods: {
-        login(){
-            if(!this.user.username || !this.user.password) {
-            alert('Cannot be empty');
-            return;
-            }
-            if(this.user.username == 'mujgan' && this.user.password == 'nebileyim'){
-                alert('login succesfull redirecting...')
-                this.$router.push('/');
-            }
-        }
+      ...mapActions('auth',['googleLogin'])
     }
 }
 </script>
