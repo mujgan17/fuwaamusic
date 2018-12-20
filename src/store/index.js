@@ -4,6 +4,8 @@ import Vuex from 'vuex';
 import auth from './auth';
 import songs from './songs';
 import ratings from './ratings';
+import favorites from './favorites';
+
 
 
 import { firebaseMutations } from 'vuexfire';
@@ -18,7 +20,8 @@ mutations:{
 modules:{
     auth,
     songs,
-    ratings
+    ratings,
+    favorites
 }
 
 

@@ -1,3 +1,4 @@
+import { firebaseAction } from 'vuexfire';
 import db from '@/db';
 
 import uuid from 'uuid';
@@ -11,15 +12,16 @@ const state = {
 };
 
 const actions = {
-    async ratedSong({commit}, val){
+    async rateSong({ commit }, val){
         let rated = false;
-        await rating.where('song_id','==',val.song_id).where('user_id','==',val.user_id)
+        await ratings.where('song_id','==',val.song_id).where('user_id','==',val.user_id)
         .get()
         .then((querySnapshot) => {
             querySnapshot.forEach((doc) => {
                 let data = doc.data();
                 if(data){
                     rated = true;
+                    return;
                 }
             });
             if(!rated){
@@ -35,8 +37,11 @@ const actions = {
         .catch((err) => {
             console.log("Error",err);
         });
-    }
-}
+    },
+    rateInit:firebaseAction(({ bindFirebaseRef}) => {
+        bindFirebaseRef('ratedSongs', ratings);
+    }),
+};
 
 export default {
     namespaced:true,

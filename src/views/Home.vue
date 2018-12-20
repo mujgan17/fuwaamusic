@@ -90,11 +90,20 @@
             class="elevation-1"
             hide-actions
             hide-headers
-            v-if="!songLoading"
+            v-if="(!songLoading && bottomNav == 'liked')"
+          >
+          </v-data-table>
+
+          <v-data-table
+            :items="getFavoriteItems()"
+            class="elevation-1"
+            hide-actions
+            hide-headers
+            v-if="(!songLoading && bottomNav == 'favorites')"
           >
             <template slot="items" slot-scope="props">
               <td>
-                <v-btn flat @click="playVideo(props.item.id)">
+                <v-btn flat @click="playVideo(props.item.song_id)">
                   <v-icon>play_circle_outline</v-icon>
                 </v-btn>
               </td>
@@ -102,15 +111,16 @@
               <td class="text-xs-center">{{ props.item.realaseDate }}</td>
               <td class="text-xs-center">{{ props.item.signer }}</td>
               <td class="text-xs-center">
-                <v-rating
-                  v-model="props.item.rating"
+                 <v-rating 
                   color="red"
                   background-color="grey lighten-1"
                   readonly
+                  :value="getRateForSong(props.item.song_id)"
                 ></v-rating>
               </td>
               <td class="text-xs-center">
-                <v-btn class="warning" @click="dialogRate(props.item.id)" small>vote</v-btn>
+                <v-btn class="warning" @click="dialogRate(props.item.id)">vote</v-btn>
+                <v-btn class="warning" @click="saveForFav(props.item)">❤</v-btn>
               </td>
             </template>
           </v-data-table>
@@ -125,7 +135,7 @@
                   color="red"
                   background-color="grey lighten-1"
                   half-increments
-                ></v-rating>
+                ></v-rating>  
             </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
@@ -134,8 +144,12 @@
         </v-card>
       </v-dialog>
       <v-card flat>
-        <v-bottom-nav :active.sync="bottomNav" :value="true" absolute color="transparent">
-          <v-btn color="teal" flat value="favorites">
+        <v-bottom-nav :active.sync="bottomNav" :value="true" absolute>
+          <v-btn color="teal" flat value="liked">
+            <span>most liked songs</span>
+            <v-icon>list</v-icon>
+          </v-btn>
+          <v-btn color="red" flat value="favorites">
             <span>favorite songs</span>
             <v-icon>favorite</v-icon>
           </v-btn>
@@ -148,7 +162,10 @@
 
 <script>
 import { mapActions, mapState, mapMutations } from "vuex";
+// hepsini topla kac kisi oyladiysa ona böl
 import firebase from "../firebase";
+
+import db from '@/db';
 
 export default {
   data: () => ({
@@ -245,7 +262,7 @@ export default {
         iron: "6%"
       }
     ],
-    bottomNav: "favorites",
+    bottomNav: "liked",
     isAdding: false,
     searchModelText: "",
     searchItems: [],
@@ -257,19 +274,23 @@ export default {
     isRateAdding: false,
     ratingVideoId: '',
     ratingVideoRate: 2.5,
-    user_id: firebase.auth().currentUser.uid,
+    user_id: firebase.auth().currentUser.uid
   }),
   computed: {
     ...mapState("songs", ["songs", "songLoading"]),
-    ...mapState("ratings", ["ratings"])
+    ...mapState("ratings", ["ratedSongs"]),
+    ...mapState('favorites', ["favorites"])
   },
   mounted() {
+    this.favoriteInit(firebase.auth().currentUser.uid);
     this.songInit();
+    this.rateInit();
   },
   methods: {
     ...mapActions("auth", ["logout"]),
     ...mapActions("songs", ["addSong", "songInit", "updateSongs"]),
-    ...mapActions("ratings", ["rateSong"]),
+    ...mapActions("ratings", ["rateSong","rateInit"]),
+    ...mapActions("favorites", ["favoriteInit", 'addFavorite']),
     ...mapMutations("songs", ["updateSongs"]),
     async saveMusic() {
       if (this.searchModelText != "") {
@@ -291,11 +312,16 @@ export default {
                 poster: video.snippet.thumbnails.medium.url,
                 realaseDate: video.snippet.publishedAt.substring(0, 4),
                 voted: 1,
-                rating: 5.0,
                 user_id: firebase.auth().currentUser.uid,
                 rateduser: firebase.auth().currentUser.uid
               };
+              let ratingElement = {
+                song_id:video.id,
+                user_id:this.user_id,
+                rate:5.0
+              };
               let result = this.addSong(songElement);
+              this.rateSong(ratingElement);
             });
             this.searchItems = [];
             this.searchModelText = "";
@@ -322,6 +348,9 @@ export default {
         return this.songs;
       }
     },
+     getFavoriteItems() {
+        return this.favorites;
+      },
     dialogRate(id){
         this.isRateAdding = true;
         this.ratingVideoId = id;
@@ -336,8 +365,24 @@ export default {
         this.ratingVideoId = '';
         this.ratingVideoRate = 2.5;
         this.isRateAdding = false;
+    },
+    getRateForSong(id){
+      let howManyUser = 0;
+      let howManyRate = 0;
+      for(let i = 0; i <  this.ratedSongs.length; i++){
+        if(this.ratedSongs[i].song_id == id){
+          howManyUser++;
+          howManyRate += this.ratedSongs[i].rate;
+        }
+      }
+      console.log(howManyRate);
+      return howManyRate / howManyUser;
+    },
+    saveForFav(val){
+      this.addFavorite(val);
     }
   },
+
   watch: {
     searchModelTextSync(val) {
       if (val != null || val != "") {
@@ -374,6 +419,7 @@ export default {
         this.searchItems = [];
       }
     },
+
     searchVideoSync(val) {
       this.searchingItems = [];
       if (val != "" && val != undefined && this.songs != undefined) {
@@ -389,7 +435,7 @@ export default {
       }
     }
   }
-};
+  };
 </script>
 
 <style>
