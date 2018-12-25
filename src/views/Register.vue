@@ -4,7 +4,7 @@
         <v-layout align-center justify-center>
           <v-flex xs12 sm8 md4>
             <v-card class="elevation-12">
-              <v-toolbar dark color="#e74c3c">
+              <v-toolbar dark color="#1289A7">
                 <v-spacer></v-spacer>
                 <v-toolbar-title>Register</v-toolbar-title>
                 <v-spacer></v-spacer>
@@ -19,13 +19,13 @@
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="#e74c3c" dark>
+                <v-btn color="#1289A7" dark>
                     <v-icon>done_outline</v-icon>
                 </v-btn>
                 <v-spacer></v-spacer>
               </v-card-actions>
               <v-card-actions>
-                <v-btn color="#e74c3c" dark class='w-100' to="Login">
+                <v-btn color="#1289A7" dark class='w-100' to="Login">
                     Login
                 </v-btn>
               </v-card-actions>

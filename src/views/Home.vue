@@ -1,16 +1,16 @@
 <template>
   <v-app>
-    <v-toolbar color="red lighten-1" app>
+    <v-toolbar color="#1289A7" app>
       <v-toolbar-title class="mr-5 align-center">
         <span class="title white--text">
-          <v-icon class="white--text">dashboard</v-icon>Fuwa
+          <v-icon class="white--text">♪</v-icon> Fuwa
         </span>
       </v-toolbar-title>
       <v-spacer></v-spacer>
       <v-text-field
         append-icon="search"
         v-model="searchVideoSync"
-        label="Oylamak için şarkı arayın..."
+        label="search music for vote..."
         solo
         class="mt-2"
       ></v-text-field>
@@ -21,12 +21,12 @@
         </v-btn>
         <span>add new song</span>
       </v-tooltip>
-      <v-tooltip bottom>
+      <!-- <v-tooltip bottom>
         <v-btn slot="activator" fab color="white" small>
           <v-icon>supervised_user_circle</v-icon>
         </v-btn>
-        <span>who is online</span>
-      </v-tooltip>
+         <span>who is online</span>  
+      </v-tooltip> -->
       <v-tooltip bottom>
         <v-btn slot="activator" fab color="white" small @click="logout()">
           <v-icon>exit_to_app</v-icon>
@@ -92,6 +92,29 @@
             hide-headers
             v-if="(!songLoading && bottomNav == 'liked')"
           >
+          <template slot="items" slot-scope="props">
+              <td>
+                <v-btn flat @click="playVideo(props.item.song_id)">
+                  <v-icon>play_circle_outline</v-icon>
+                </v-btn>
+              </td>
+              <td class="text-xs-center">{{ props.item.name }}</td>
+              <td class="text-xs-center">{{ props.item.realaseDate }}</td>
+              <td class="text-xs-center">{{ props.item.signer }}</td>
+              <td class="text-xs-center">
+                 <v-rating 
+                  color="#f6e58d"
+                  background-color="grey lighten-1"
+                  readonly
+                  :value="getRateForSong(props.item.id)"
+                ></v-rating>
+              </td>
+              <td class="text-xs-center">
+                <v-btn background-color="green" class="warning" @click="dialogRate(props.item.id)">vote</v-btn>
+                <v-btn class="warning" @click="saveForFav(props.item)">❤</v-btn>
+              </td>
+            </template>
+
           </v-data-table>
 
           <v-data-table
@@ -112,13 +135,13 @@
               <td class="text-xs-center">{{ props.item.signer }}</td>
               <td class="text-xs-center">
                  <v-rating 
-                  color="red"
+                  color="#f6e58d"
                   background-color="grey lighten-1"
                   readonly
                   :value="getRateForSong(props.item.song_id)"
                 ></v-rating>
               </td>
-              <td class="text-xs-center">
+              <td class="text-xs-center" backgrpund-color="green">
                 <v-btn class="warning" @click="dialogRate(props.item.id)">vote</v-btn>
                 <v-btn class="warning" @click="saveForFav(props.item)">❤</v-btn>
               </td>

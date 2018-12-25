@@ -20,7 +20,7 @@ const actions = {
         await favorites.where('song_id', "==", val.id).where('user_id',"==", val.user_id)
         .get()
         .then((querySnapshot) => {
-            querySnapshot.array.forEach(element => {
+            querySnapshot.forEach(element => {
                 let data = element.data();
                 if(data){
                     favoritedBefore = true;
@@ -31,12 +31,13 @@ const actions = {
                 let songElement ={
                 song_id: val.id,
                 name: val.name,
-                signer: val.singer,
+                signer: val.signer,
                 poster: val.poster,
                 realaseDate: val.realaseDate,
                 user_id: val.user_id
             };
                 favorites.doc(uuid.v4()).set(songElement);
+               
             }
         })
         .catch((err) => {
@@ -46,7 +47,7 @@ const actions = {
 
 };
 
-export default{
+export default {
     namespaced:true,
     state,
     actions
